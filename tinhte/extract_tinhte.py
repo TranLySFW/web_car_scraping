@@ -87,7 +87,7 @@ def tinhte_get_content_article(article_url):
                     if text[0] != "@" and text[0] != " ":
                         comments.append(text)
 
-        print(comments)
+        # print(comments)
 
         return {"title": title,
                 "content": content,
