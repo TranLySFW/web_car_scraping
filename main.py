@@ -9,9 +9,8 @@ db.app = app
 db.init_app(app)
 
 from tinhte.extract_tinhte import *
+# from telegram.extract_telegram import *
 from controllers.apis import *
-
-
 
 if (__name__ == "__main__"):
     # db.create_all()
