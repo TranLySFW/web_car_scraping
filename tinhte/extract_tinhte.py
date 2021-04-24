@@ -1,11 +1,120 @@
 import requests
 import re
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import selenium.webdriver.support.ui as ui
 
+main_page_url = "https://tinhte.vn/"
 xe_tinhte_url = "https://xe.tinhte.vn/"
 MAX_PAGINATION = 100
 
-def tinhte_get_list_articles():
+
+def tinhte_get_list_articles_main_page(number_of_loading=5):
+    """
+    Retrieve all links of articles on main page of tinhte
+
+    :return: list of articles
+    """
+    try:
+        list_articles = []
+        driver = webdriver.Firefox()
+        driver.get(main_page_url)
+    except Exception as e:
+        print(f"[Get page] Cannot get content of page!, error code {e}")
+        return None
+
+    try:
+        button_more = driver.find_element_by_xpath("//button[contains(@class, 'load-more-btn')]")
+
+        if not button_more:
+            print(f"There is only one page!")
+        else:
+            for i in range(0, number_of_loading):
+                print(f"Clicked: {i + 1} times")
+                try:
+                    button_more.click()
+                    wait = ui.WebDriverWait(driver, timeout=20)
+                    wait.until(lambda driver: driver.find_element_by_xpath("//button[contains(@class, 'load-more-btn')]"))
+                except Exception as e:
+                    print(f"[Load more articles] Error code {e}")
+                    continue
+
+    except Exception as e:
+        print(f"[Handle click] Error code {e}")
+
+    try:
+        articles = driver.find_elements_by_tag_name("article")
+        if not articles:
+            print("None")
+
+        for article in articles:
+            a_tag = article.find_elements_by_tag_name("a")
+
+            if a_tag:
+                # print(a_tag[0].get_attribute("href"))
+                list_articles.append(a_tag[0].get_attribute("href"))
+
+        articles.clear()
+        driver.close()
+        print(f"The number of articles are collected: {len(list_articles)}")
+        return list_articles
+
+    except Exception as e:
+        print(f"[Get articles] Error code {e}")
+
+
+def tinhte_sl_get_list_articles():
+    """
+
+    :return:
+    """
+    NUM_LOAD_MORE_ARTICLES = 20
+    try:
+        list_articles = []
+        driver = webdriver.Firefox()
+        driver.get(xe_tinhte_url)
+
+        button_more = driver.find_element_by_xpath("//button[@type='button']")
+        for i in range(0, NUM_LOAD_MORE_ARTICLES):
+            print(f"i: {i}")
+            try:
+                button_more.click()
+                wait = ui.WebDriverWait(driver, 20)
+                wait.until(lambda driver: driver.find_element_by_xpath("//button[@type='button']"))
+            except Exception as e:
+                print(f"error {e}")
+
+        articles = driver.find_elements_by_xpath("//div[contains(@class, 'article') or contains(@class, 'item')]")
+
+        if not articles:
+            print("None")
+
+        for article in articles:
+            a_tag = article.find_elements_by_tag_name("a")
+
+            if a_tag:
+                # print(a_tag[0].text)
+                print(a_tag[0].get_attribute("href"))
+                list_articles.append(a_tag[0].get_attribute("href"))
+
+        articles.clear()
+        driver.close()
+
+        print(len(list_articles))
+
+    except Exception as e:
+        print(f"error {e}")
+
+
+# for element in self.driver.find_elements_by_tag_name('img'):
+#        print element.text
+#        print element.tag_name
+#        print element.parent
+#        print element.location
+#        print element.size
+
+def tinhte_bs_get_list_articles():
     """
     Get list of articles in url
 
@@ -121,5 +230,6 @@ def tinhte_get_content(list_articles):
 
 
 if (__name__ == "__main__"):
-    list_articles = tinhte_get_list_articles()
-    tinhte_get_content(list_articles)
+    # list_articles = tinhte_get_list_articles()
+    # tinhte_get_content(list_articles)
+    tinhte_get_list_articles_main_page()
