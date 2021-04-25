@@ -2,21 +2,33 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-
-class Tinhte(db.Model):
-    __tablename__ = "tinhte"
+class Tinhte_Article(db.Model):
+    __tablename__ = "tinhte_article"
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.Text)
+    url = db.Column(db.String)
+    subject = db.Column(db.String)
+    date = db.Column(db.Date)
+    title = db.Column(db.String)
     content = db.Column(db.Text)
 
-    comments = db.relationship("TinhteComment", backref="id", lazy=True)
+    tags = db.relationship("Tinhte_Tag", backref="article_id", lazy=True)
+    comments = db.relationship("Tinhte_Comment", backref="article_id", lazy=True)
 
 
-class TinhteComment(db.Model):
+class Tinhte_Comment(db.Model):
     __tablename__ = "tinhte_comment"
 
     id = db.Column(db.Integer, primary_key=True)
-    comment = db.Column(db.Text)
+    comment = db.Column(db.String)
 
-    tinhte_id = db.Column(db.Integer, db.ForeignKey("tinhte.id"))
+    tinhte_article_id = db.Column(db.Integer, db.ForeignKey("tinhte_article.id"))
+
+
+class Tinhte_Tag(db.Model):
+    __tablename__ = "tinhte_tag"
+
+    id = db.Column(db.Integer, primary_key=True)
+    tag = db.Column(db.String)
+
+    tinhte_article_id = db.Column(db.Integer, db.ForeignKey("tinhte_article.id"))
