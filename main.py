@@ -13,5 +13,5 @@ from tinhte.extract_tinhte import *
 from controllers.apis import *
 
 if (__name__ == "__main__"):
-    # db.create_all()
+    db.create_all()
     app.run()

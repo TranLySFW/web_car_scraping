@@ -16,15 +16,14 @@ def drop_all():
     return "Delete all tables"
 
 
-@app.route('/write')
-def write_one():
-    row = tinhte_get_content_article(
-        "https://tinhte.vn/thread/triumph-ra-mat-street-scrambler-2022-dong-co-moi-ngoai-hinh-cai-tien-gia-tu-11-000-usd.3315725/")
-    tinhte_write_article_to_db(row)
-
-    return "1"
-
-
+@app.route('/write_db')
+def write_db_all():
+    list_articles = tinhte_get_list_articles_main_page(number_of_loading=150)
+    flag = tinhte_write_articles_to_db(list_articles)
+    if flag:
+        return "Success"
+    else:
+        return "Fail"
 
 
 @app.route('/update_xetinhte')

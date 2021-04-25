@@ -2,6 +2,9 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+# C:\Program Files\PostgreSQL\13\bin>pg_dump.exe -d muse_media --username=postgres  > muse_media.sql
+# C:\Program Files\PostgreSQL\13\bin>psql.exe --username=postgres -d test < muse_media.sql
+
 class Tinhte_Article(db.Model):
     __tablename__ = "tinhte_article"
 
