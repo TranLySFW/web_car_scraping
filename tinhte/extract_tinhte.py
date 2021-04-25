@@ -1,5 +1,6 @@
 import requests
 import re
+from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -52,7 +53,7 @@ def tinhte_get_list_articles_main_page(number_of_loading=5):
             a_tag = article.find_elements_by_tag_name("a")
 
             if a_tag:
-                # print(a_tag[0].get_attribute("href"))
+                print(a_tag[0].get_attribute("href"))
                 list_articles.append(a_tag[0].get_attribute("href"))
 
         articles.clear()
@@ -64,7 +65,7 @@ def tinhte_get_list_articles_main_page(number_of_loading=5):
         print(f"[Get articles] Error code {e}")
 
 
-def tinhte_sl_get_list_articles():
+def tinhte_get_list_articles_car_section():
     """
 
     :return:
@@ -107,46 +108,6 @@ def tinhte_sl_get_list_articles():
         print(f"error {e}")
 
 
-# for element in self.driver.find_elements_by_tag_name('img'):
-#        print element.text
-#        print element.tag_name
-#        print element.parent
-#        print element.location
-#        print element.size
-
-def tinhte_bs_get_list_articles():
-    """
-    Get list of articles in url
-
-    :return: list of links of articles on main page
-    """
-    try:
-        # xe_tinhte_url = "https://xe.tinhte.vn/"
-        full_url = f"{xe_tinhte_url}"  # URL & Headers
-        print(f"Page: {full_url}")  # full URL in case of prefix
-
-        list_articles = []
-
-        res = requests.get(full_url)  # get html content
-        if (res.status_code) != 200:
-            print("Can not get page, please check url!")
-            return False
-
-        bs_object = BeautifulSoup(res.text, 'html.parser')  # page content
-        articles = bs_object.find_all("div", attrs={"class": ["article", "item"]})
-
-        for article in articles:
-            a_tag = article.find("a")
-
-            if a_tag:
-                list_articles.append(a_tag['href'])
-
-        print(list_articles)
-        return list_articles
-
-    except Exception as e:
-        print(f"ERROR:  {e}")
-        return False
 
 
 def tinhte_get_content_article(article_url):
@@ -157,7 +118,7 @@ def tinhte_get_content_article(article_url):
     :return:
     """
     try:
-        title, content, comments = "", "", []
+        subject, date, title, content, tags, comments = "", datetime.today(), "", "", [], []
 
         res = requests.get(article_url)
         if (res.status_code) != 200:
@@ -167,15 +128,44 @@ def tinhte_get_content_article(article_url):
         bs_object = BeautifulSoup(res.text, 'html.parser')  # html content
         print(f"article url: {article_url}")
 
+        subject_obj = bs_object.find_all("a", attrs={"class": ["label"]})
+        if subject_obj:
+            subject = subject_obj[-1].text
+            print(f"subject: {subject}")
+
+        date_obj = bs_object.find("span", attrs={"class": ["date"]})
+        if date_obj:
+            date = date_obj.text
+            previous_day = 1
+            if date in [ str(i) + "h" for i in range(0, 25)]:
+                previous_day = datetime.today()
+            else:
+                date_symbol = date.split()[-1]
+                if date_symbol == "ngày":
+                    previous_day = int(date.split()[0])
+                elif date_symbol == "tháng":
+                    previous_day = int(date.split()[0]) * 30
+
+            publish_date = datetime.today() - timedelta(previous_day)
+            date = publish_date
+            print(f"publish_date: {publish_date}")
+
         title_obj = bs_object.find("div", attrs={"class": ["thread-title"]})  # get title of article
         if title_obj:
             title = title_obj.text
+            print(f"title: {title}")
 
         content_object = bs_object.find("article", attrs={"class": ["content"]})
         if content_object:
             content = content_object.text
             content = content.replace("\n", "")
             # print(article_content)
+
+        tags_obj = bs_object.find_all("a", attrs={"class": ["tag"]})
+        if tags_obj:
+            for tag in tags_obj:
+                tags.append(tag.text)
+                print(tag.text)
 
         for i in range(1, MAX_PAGINATION):
             page_url = f"{article_url}page-{i}"
@@ -196,12 +186,14 @@ def tinhte_get_content_article(article_url):
                     if text[0] != "@" and text[0] != " ":
                         comments.append(text)
 
-        print(f"Title: {title}")
         for comment in comments:
             print(comment)
 
-        return {"title": title,
+        return {"subject": subject,
+                "date": date,
+                "title": title,
                 "content": content,
+                "tags": tags,
                 "comments": comments}
 
     except Exception as e:
@@ -220,7 +212,6 @@ def tinhte_get_content(list_articles):
         result = []
         for article_url in list_articles:  # get list of articles
             result.append(tinhte_get_content_article(article_url))
-
         # print(result)
         return result
 
@@ -232,4 +223,6 @@ def tinhte_get_content(list_articles):
 if (__name__ == "__main__"):
     # list_articles = tinhte_get_list_articles()
     # tinhte_get_content(list_articles)
-    tinhte_get_list_articles_main_page()
+    # tinhte_get_list_articles_main_page(70)
+    tinhte_get_content_article(
+        "https://tinhte.vn/thread/triumph-ra-mat-street-scrambler-2022-dong-co-moi-ngoai-hinh-cai-tien-gia-tu-11-000-usd.3315725/")
