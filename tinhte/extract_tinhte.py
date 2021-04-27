@@ -21,24 +21,24 @@ def tinhte_get_list_articles_main_page(number_of_loading=5):
     :return: list of articles
     """
     try:
-        list_articles = []                              # set output
-        driver = webdriver.Firefox()                    # using selenium with Firefox
-        driver.get(main_page_url)                       # get main page of Tinhte
+        list_articles = []  # set output
+        driver = webdriver.Firefox()  # using selenium with Firefox
+        driver.get(main_page_url)  # get main page of Tinhte
     except Exception as e:
         print(f"[Get page] Cannot get content of page!, error code {e}")
         return None
 
     try:
-        button_more = driver.find_element_by_xpath("//button[contains(@class, 'load-more-btn')]")   # search button to load more
+        button_more = driver.find_element_by_xpath("//button[contains(@class, 'load-more-btn')]")  # search button to load more
 
-        if not button_more:                             # reserved
+        if not button_more:  # reserved
             print(f"There is only one page!")
         else:
-            for i in range(0, number_of_loading):       # count action of clicking
+            for i in range(0, number_of_loading):  # count action of clicking
                 print(f"Clicked: {i + 1} times")
                 try:
-                    button_more.click()                 # simulated clicking
-                    wait = ui.WebDriverWait(driver, timeout=20) # wait for browser to load
+                    button_more.click()  # simulated clicking
+                    wait = ui.WebDriverWait(driver, timeout=20)  # wait for browser to load
                     wait.until(lambda driver: driver.find_element_by_xpath("//button[contains(@class, 'load-more-btn')]"))
                 except Exception as e:
                     print(f"[Load more articles] Error code {e}")
@@ -134,6 +134,10 @@ def tinhte_get_content_an_article(article_url):
         if subject_obj:
             subject = subject_obj[-1].text
             # print(f"subject: {subject}")
+        else:
+            subject_obj = bs_object.find("div", attrs={"class": ["subbrand-domain"]})
+            if subject_obj:
+                subject = subject_obj.text
 
         date_obj = bs_object.find("span", attrs={"class": ["date"]})
         if date_obj:
@@ -232,14 +236,14 @@ def tinhte_write_an_article_to_db(observe):
     :return: 1 if okay
     """
     try:
-        article_existed = Tinhte_Article.query.filter_by(url=observe["url"]).first()    # check existed
+        article_existed = Tinhte_Article.query.filter_by(url=observe["url"]).first()  # check existed
 
         if article_existed:
-            current_comments = article_existed.comments                                 # get all existing comments
-            if len(observe["comments"]) > len(current_comments):                        # compare number of comments
+            current_comments = article_existed.comments  # get all existing comments
+            if len(observe["comments"]) > len(current_comments):  # compare number of comments
                 for new_comment in observe["comments"]:
                     if not (new_comment in current_comments):
-                        comment_instance = Tinhte_Comment(comment=new_comment)          # add more comments
+                        comment_instance = Tinhte_Comment(comment=new_comment)  # add more comments
                         article_existed.comments.append(comment_instance)
 
         else:
@@ -294,5 +298,5 @@ def tinhte_write_articles_to_db(list_articles):
 
 if (__name__ == "__main__"):
     observe = tinhte_get_content_an_article(
-        "https://tinhte.vn/thread/tong-hop-game-mobile-dang-chu-y-trong-tuan-3-thang-4-2021.3316747/")
+        "https://tinhte.vn/thread/honda-dat-muc-tieu-den-2040-se-chi-ban-xe-dien-2050-khong-xe-nao-cua-ho-gay-tai-nan-tu-vong.3317817/")
     print(observe)

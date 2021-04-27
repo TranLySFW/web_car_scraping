@@ -24,6 +24,8 @@ class Tinhte_Comment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     comment = db.Column(db.String)
+    tokenized_text = db.Column(db.String)
+    prediction = db.Column(db.String)
 
     tinhte_article_id = db.Column(db.Integer, db.ForeignKey("tinhte_article.id"))
 
