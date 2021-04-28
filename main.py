@@ -9,6 +9,7 @@ db.app = app
 db.init_app(app)
 
 from tinhte.extract_tinhte import *
+from muse_model_dir.muse_nlp import *
 # from telegram.extract_telegram import *
 from controllers.apis import *
 
