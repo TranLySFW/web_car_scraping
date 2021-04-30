@@ -27,28 +27,31 @@ def otofun_get_main_nodes():
         return None
 
     try:
-        # nodes = driver.find_elements_by_xpath(
-        #     "//div[contains(@class, 'node-body')]//h3[contains(@class, 'node-title')]//a")  # find main nodes
+        nodes = driver.find_elements_by_xpath(
+            "//div[contains(@class, 'node-body')]//h3[contains(@class, 'node-title')]//a")  # find main nodes
 
-        # nodes = driver.find_elements_by_xpath("//div[contains(@class, 'node-body')]")  # find main nodes
+        if nodes:
+            for node in nodes:
+                node_instance = Otofun_MainNode(url=node.get_attribute('href'), subject=node.text)
+                db.session.add(node_instance)
+                db.session.commit()
+                list_nodes.append(node.get_attribute('href'))
 
         nodes = driver.find_elements_by_xpath("//div[contains(@class, 'node-subNodesFlat')]//a[contains(@class,'subNodeLink')]")
         if nodes:
             for node in nodes:
-                print(node.get_attribute('href'))
-                list_nodes.append(node.get_attribute('href'))
-
-        nodes =  driver.find_elements_by_xpath(
-                        "//div[contains(@class, 'node-body')]//h3[contains(@class, 'node-title')]//a")  # find main nodes
-        if nodes:
-            for node in nodes:
-                print(node.get_attribute('href'))
-                list_nodes.append(node.get_attribute('href'))
+                if not(node.get_attribute('href') in list_nodes):
+                    node_instance = Otofun_MainNode(url=node.get_attribute('href'), subject=node.text)
+                    db.session.add(node_instance)
+                    db.session.commit()
+                    list_nodes.append(node.get_attribute('href'))
 
         nodes.clear()
-        list_nodes = (list(set(list_nodes)))
-        # for node in list_nodes:
-        #     print(node)
+        # list_nodes = (list(set(list_nodes)))
+
+        for node in list_nodes:
+            print(node)
+
         return list_nodes
 
     except Exception as e:
@@ -70,36 +73,42 @@ def ototfun_get_threads(list_nodes):
         list_active_threads = []
         for i, node in enumerate(list_nodes):
             print(f"processing node: {i}, thread URL: {node}")
-
             node_url = node
-            res = requests.get(node_url, timeout=5, allow_redirects=False)
+            for page in range(0, MAX_THREAD):
 
-            if (res.status_code) != 200:
-                print("Can not get page, please check url!")
-                continue
+                if page:
+                    node_url = node + f"/page-{page}"
 
-            bs_object = BeautifulSoup(res.text, 'html.parser')  # html content
+                res = requests.get(node_url, timeout=5, allow_redirects=False)
 
-            threads = bs_object.find_all("div", attrs={"class": ["structItem"]})
+                if (res.status_code) != 200:
+                    print("Can not get page, please check url!")
+                    continue
 
-            for thread in threads:
-                title = thread.find("div", attrs={"class": ["structItem-title"]})
-                a_tag = title.find_all("a")
-                list_active_threads.append(main_page_url + a_tag[-1]["href"])
-                print(main_page_url + a_tag[-1]['href'])
+                bs_object = BeautifulSoup(res.text, 'html.parser')  # html content
 
-                last_update = thread.find("time", attrs={"class": ["structItem-latestDate"]})
+                threads = bs_object.find_all("div", attrs={"class": ["structItem"]})
 
-                if last_update:
-                    data_time = (last_update['data-time-string'])  # 21:06
-                    hour = data_time.split(":")[0]
-                    minute = data_time.split(":")[1]
-                    data_date = last_update['data-date-string']  # 24/3/21
-                    day = data_date.split("/")[0]
-                    month = data_date.split("/")[1]
-                    year = last_update['datetime'].split("-")[0]  # 2021-03-24T17:09:58+0700
-                    last_update = datetime(year=int(year), month=int(month), day=int(day), hour=int(hour), minute=int(minute))
-                    print(last_update)
+                for thread in threads:
+                    title = thread.find("div", attrs={"class": ["structItem-title"]})
+                    a_tag = title.find_all("a")
+
+                    list_active_threads.append(main_page_url + a_tag[-1]["href"])
+                    print(main_page_url + a_tag[-1]['href'])
+
+                    last_update = thread.find("time", attrs={"class": ["structItem-latestDate"]})
+
+                    if last_update:
+                        data_time = (last_update['data-time-string'])  # 21:06
+                        hour = data_time.split(":")[0]
+                        minute = data_time.split(":")[1]
+                        data_date = last_update['data-date-string']  # 24/3/21
+                        day = data_date.split("/")[0]
+                        month = data_date.split("/")[1]
+                        year = last_update['datetime'].split("-")[0]  # 2021-03-24T17:09:58+0700
+                        last_update = datetime(year=int(year), month=int(month), day=int(day), hour=int(hour), minute=int(minute))
+
+                        print(last_update)
 
         return list_active_threads
 
