@@ -10,6 +10,8 @@ db.init_app(app)
 
 from tinhte.extract_tinhte import *
 from muse_model_dir.muse_nlp import *
+from otofun.extract_otofun import *
+from vietnamfinance.extract_vnf import *
 # from telegram.extract_telegram import *
 from controllers.apis import *
 

@@ -4,6 +4,8 @@ import json
 
 from tinhte.extract_tinhte import *
 from muse_model_dir.muse_nlp import *
+from otofun.extract_otofun import *
+from vietnamfinance.extract_vnf import *
 
 
 @app.route('/')
@@ -19,12 +21,17 @@ def drop_all():
 
 @app.route('/write_db')
 def write_db_all():
-    list_articles = tinhte_get_list_articles_main_page(number_of_loading=5)
-    flag = tinhte_write_articles_to_db(list_articles)
+    # list_nodes = otofun_get_main_nodes()
+    # flag = ototfun_get_threads(list_nodes)
+    # flag = otofun_get_comments_to_db()
+    flag = vnf_get_bank_articles()
+
     if flag:
         return "Success"
     else:
         return "Fail"
+
+
 
 
 @app.route('/predict')
