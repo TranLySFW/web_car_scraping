@@ -4,6 +4,11 @@ db = SQLAlchemy()
 
 # C:\Program Files\PostgreSQL\13\bin>pg_dump.exe -d muse_media --username=postgres  > muse_media.sql
 # C:\Program Files\PostgreSQL\13\bin>psql.exe --username=postgres -d test < muse_media.sql
+# C:\Program Files\PostgreSQL\13\bin>pg_dump.exe -h 34.87.145.78 -p 3306 --username=tranly --password=mariana -t tinhte_article muse >  update_tinhte.sql
+# C:\Program Files\PostgreSQL\13\bin>psql -h localhost -p 5432 --username=postgres --password=zxcvbnm1 -d muse_media -f update_tinhte.sql
+# C:\Program Files\PostgreSQL\13\bin>pg_dump.exe -h localhost -p 5432 --username=postgres --password=zxcvbnm1 -t cafef_bank -d muse_media > update_cafef_bank.sql
+# C:\Program Files\PostgreSQL\13\bin>psql -h 34.87.145.78 -p 3306 --username=tranly --password=mariana -d muse -f update_cafef_bank.sql
+
 
 class Tinhte_Article(db.Model):
     __tablename__ = "tinhte_article"
@@ -84,6 +89,8 @@ class Vnf_Bank(db.Model):
     author = db.Column(db.String)
     date = db.Column(db.Date)
     content = db.Column(db.Text)
+    tokenized_text = db.Column(db.String)
+    prediction = db.Column(db.String)
 
 
 class Cafef_Bank(db.Model):
@@ -93,5 +100,36 @@ class Cafef_Bank(db.Model):
     url = db.Column(db.String)
     title = db.Column(db.String)
     subject = db.Column(db.String)
+    author = db.Column(db.String)
     date = db.Column(db.Date)
     content = db.Column(db.Text)
+    tokenized_text = db.Column(db.String)
+    prediction = db.Column(db.String)
+
+
+class Cafef_Company(db.Model):
+    __tablename__ = "cafef_company"
+
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String)
+    title = db.Column(db.String)
+    subject = db.Column(db.String)
+    author = db.Column(db.String)
+    date = db.Column(db.Date)
+    content = db.Column(db.Text)
+    tokenized_text = db.Column(db.String)
+    prediction = db.Column(db.String)
+
+
+class Cafef_Stock(db.Model):
+    __tablename__ = "cafef_stock"
+
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String)
+    title = db.Column(db.String)
+    subject = db.Column(db.String)
+    author = db.Column(db.String)
+    date = db.Column(db.Date)
+    content = db.Column(db.Text)
+    tokenized_text = db.Column(db.String)
+    prediction = db.Column(db.String)
