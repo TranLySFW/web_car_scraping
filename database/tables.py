@@ -133,3 +133,17 @@ class Cafef_Stock(db.Model):
     content = db.Column(db.Text)
     tokenized_text = db.Column(db.String)
     prediction = db.Column(db.String)
+
+
+class Dantri_Business(db.Model):
+    __tablename__ = "dantri_business"
+
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String)
+    title = db.Column(db.String)
+    subject = db.Column(db.String)
+    author = db.Column(db.String)
+    date = db.Column(db.Date)
+    content = db.Column(db.Text)
+    tokenized_text = db.Column(db.String)
+    prediction = db.Column(db.String)

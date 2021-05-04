@@ -9,11 +9,10 @@ from transformers import AutoModel, AutoTokenizer
 
 from database.tables import *
 
-service = 'http://localhost:8000/v1/segmenting?skipPunct=1'
-
+service = 'http://localhost:7000/v1/segmenting?skipPunct=1'
 
 # Start container of vncorenlp in docker with port 8000
-# >> docker run -d -p 8000:8080 ndthuan/vi-word-segmenter:latest
+# >> docker run -d -p 7000:8080 ndthuan/vi-word-segmenter:latest
 
 
 # lr_clf = load('D:\\02_projects\\06_web_car__scrape\\web_car_scraping\\lr_clf.joblib')
@@ -75,6 +74,41 @@ def muse_tinhte_predict():
 
     return None
 
+
+def muse_vnf_predict():
+    for i in range(1, 4300):  # id_start and id_stop
+        try:
+            print(f"Processing id = {i}")
+            article_instance = Vnf_Bank.query.filter_by(id=i).first()  # get comment
+            tokenized_text = muse_tokenize_data(article_instance.title)  # vectorization
+            sentiment = muse_get_prediction(tokenized_text)  # classification
+            article_instance.tokenized_text = str(tokenized_text)  # save to db
+            article_instance.prediction = sentiment  # get sentiment to db
+
+            db.session.commit()
+        except Exception as e:
+            print(f"error {e}")
+            continue
+
+    return 1
+
+
+def muse_dantri_predict():
+    for i in range(1, 2220):  # id_start and id_stop
+        try:
+            print(f"Processing id = {i}")
+            article_instance = Dantri_Business.query.filter_by(id=i).first()  # get comment
+            tokenized_text = muse_tokenize_data(article_instance.title)  # vectorization
+            sentiment = muse_get_prediction(tokenized_text)  # classification
+            article_instance.tokenized_text = str(tokenized_text)  # save to db
+            article_instance.prediction = sentiment  # get sentiment to db
+
+            db.session.commit()
+        except Exception as e:
+            print(f"error {e}")
+            continue
+
+    return 1
 
 if (__name__ == "__main__"):
     # service = 'http://localhost:8000/v1/segmenting?skipPunct=1'
